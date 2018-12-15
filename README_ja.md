@@ -25,3 +25,8 @@ FullyConnectedConvolution Layer(1x1x10)  FullyConnectedConvolution Gradient Laye
                    │                                       ↑
                    └────────────────→ Loss ────────────────┘
 ```
+
+# 現状の成果(2018.12.15)
+
+学習はできているらしい ( `MPSCNNConvolution.h` L.683 参照 ).
+学習した結果を推論するのどうしたらいいの？
