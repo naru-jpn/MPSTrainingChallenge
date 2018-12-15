@@ -4,7 +4,7 @@ MetalPerformanceShaders Framework を使ってニューラルネットワーク�
 
 ## 背景
 
-[Metal for Accelerating Machine Learning - WWDC 2018](https://developer.apple.com/videos/play/wwdc2018/609/) にて, Metalを利用してニューラルネットワークの「学習」ができるようになったという発言がなされた. セッション中ではデモが行われたが, デモはTuriCreateとTensorFlowについてのものであった. ネットを検索してみても学習から評価を行っている実装が見つからないし, リファレンスにすらあまり情報がない. iOS上で学習して, 継続してとい う実装はどうやったら実現できるのだろうか.
+[Metal for Accelerating Machine Learning - WWDC 2018](https://developer.apple.com/videos/play/wwdc2018/609/) にて, Metalを利用してニューラルネットワークの「学習」ができるようになったという発言がなされた. セッション中ではデモが行われたが, デモはTuriCreateとTensorFlowについてのものであった. ネットを検索してみても学習から評価を行っている実装が見つからないし, リファレンスにすらあまり情報がない. iOS上で学習して, 継続して推論をするという実装はどうやったら実現できるのだろうか.
 
 ## 使用するデータセット
 
