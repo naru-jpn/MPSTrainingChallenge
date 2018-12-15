@@ -30,10 +30,6 @@
     [self loadGraph];
     [self loadMNIST];
     [self loadProcessor];
-    
-    [_processor trainGraph:_graph training:_mnistTraning test:_mnistTest epocs:1 iterationsPerEpoc:100 batchSize:10];
-    
-    [_processor inferenceMNIST:_mnistTest range:NSMakeRange(0, 1) graph:_graph.inference];
 }
 
 #pragma mark - Load
@@ -57,6 +53,9 @@
     switch (indexPath.row) {
         case 0:
             [self showMNISTPreviewActionSheet];
+            break;
+        case 1:
+            [self startTraining];
             break;
         default:
             break;
@@ -84,6 +83,11 @@
     // Cancel
     [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alertController animated:true completion:nil];
+}
+
+- (void)startTraining {
+    [_processor trainGraph:_graph training:_mnistTraning test:_mnistTest epocs:10 iterationsPerEpoc:60 batchSize:10];
+    [_processor inferenceMNIST:_mnistTest range:NSMakeRange(0, 1) graph:_graph.inference];
 }
 
 @end

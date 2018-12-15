@@ -40,12 +40,16 @@
     self.lossNode = [MPSCNNLossNode nodeWithSource:_softMaxNode.resultImage lossDescriptor:self.lossDescriptor];
     self.softMaxGradientNode = [_softMaxNode gradientFilterWithSource:_lossNode.resultImage];
     self.fullyConnectedGradientNode = [_fullyConnectedNode gradientFilterWithSource:_softMaxGradientNode.resultImage];
+    
+    // Set exportFromGraph true to get intermediateImages on training graph.
+    _fullyConnectedNode.resultImage.exportFromGraph = YES;
 
 // +[MPSNNGraph graphWithDevice:resultImages:resultsAreNeeded:]: unrecognized selector sent to class *****...
 //    NSArray<MPSNNImageNode *> *resultImages = @[_fullyConnectedGradientNode.resultImage, _softMaxNode.resultImage];
 //    BOOL *resultsAreNeeded = {NO, YES};
 //    self.training = [MPSNNGraph graphWithDevice:AppDelegate.instance.GPUDevice resultImages:resultImages resultsAreNeeded:resultsAreNeeded];
     
+    // Perhaps graphs hold bias and weights each other. So inference graph is still initial state after training graph trained.
     self.training = [MPSNNGraph graphWithDevice:AppDelegate.instance.GPUDevice resultImage:_fullyConnectedGradientNode.resultImage resultImageIsNeeded:NO];
     self.inference = [MPSNNGraph graphWithDevice:AppDelegate.instance.GPUDevice resultImage:_softMaxNode.resultImage resultImageIsNeeded:YES];
 }

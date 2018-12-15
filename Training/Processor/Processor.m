@@ -43,6 +43,8 @@
         }
         [latestCommandBuffer waitUntilCompleted];
         
+        NSLog(@"Complete epoc: %ld", j);
+        
         // TODO: Inference
     }
 }
@@ -51,13 +53,12 @@
     
     MPSImageBatch *imageBatch = [mnist imageBatchWithRange:range];
     [graph executeAsyncWithSourceImages:imageBatch completionHandler:^(MPSImage *result, NSError *error){
-        
         float16_t results[12] = {};
         MTLRegion region = MTLRegionMake3D(0, 0, 0, 1, 1, 1);
         for (NSInteger i=0; i<=2; i++) {
             [result.texture getBytes:&(results[i*4]) bytesPerRow:sizeof(float16_t)*4 bytesPerImage:sizeof(float16_t)*4 fromRegion:region mipmapLevel:0 slice:i];
         }
-        printf("%s", results);
+        printf("%p", results);
     }];
 }
 
@@ -74,6 +75,8 @@
         dispatch_semaphore_signal(self->_semaphore_train);
     }];
     [commandBuffer commit];
+    
+    // Results of intermediateImages is not accessible from CPU...
     
     return commandBuffer;
 }
