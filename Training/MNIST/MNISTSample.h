@@ -15,8 +15,8 @@
 @property (nonatomic, retain, nullable) MNISTLabel *label;
 @property (nonatomic, retain, nullable) MNISTImage *image;
 
-- (instancetype)initWithLabel:(nullable MNISTLabel *)label image:(nullable MNISTImage *)image;
+- (nonnull instancetype)initWithLabel:(nullable MNISTLabel *)label image:(nullable MNISTImage *)image;
 
-+ (instancetype)sampleWithLabel:(nullable MNISTLabel *)label image:(nullable MNISTImage *)image;
++ (nonnull instancetype)sampleWithLabel:(nullable MNISTLabel *)label image:(nullable MNISTImage *)image;
 
 @end

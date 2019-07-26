@@ -130,38 +130,81 @@
 @property (nonatomic, assign) id<MTLDevice> device;
 @property (nonatomic, retain) CNNConvolutionDataSourceProperty *property;
 @property (nonatomic, retain) MPSNNOptimizerStochasticGradientDescent *optimizer;
+@property (nonatomic, assign, nonnull) id <MTLCommandQueue> commandQueue;
 @end
 
 @implementation CNNConvolutionDataSource {
-    float32_t *_weights;
-    float32_t *_bias;
+    MPSVectorDescriptor *_weightsDescriptor;
+    MPSVector *_weightsVector;
+    MPSVectorDescriptor *_biasDescriptor;
+    MPSVector *_biasVector;
+    Float32 *_weightsPointer;
+    Float32 *_biasPointer;
+    MPSCNNConvolutionWeightsAndBiasesState *_weightsAndBiasState;
 }
 
-- (instancetype)initWithProperty:(CNNConvolutionDataSourceProperty *)property device:(id<MTLDevice>)device {
+- (instancetype)initWithProperty:(CNNConvolutionDataSourceProperty *)property device:(id<MTLDevice>)device commandQueue:(id<MTLCommandQueue>)commandQueue {
     self = [super init];
     if (self) {
-        _bias = NULL;
-        _weights = NULL;
         self.property = property;
         self.optimizer = [[MPSNNOptimizerStochasticGradientDescent alloc] initWithDevice:device learningRate:0.01f];
+        self.commandQueue = commandQueue;
+
+        const char *path_bias = [[NSBundle mainBundle] pathForResource:_property.biasFileName ofType:_property.fileExtension].UTF8String;
+        int32_t fd_b = open(path_bias, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+        if (fd_b == -1) {
+            [NSException raise:@"FailedToOpenBiasParameterFile" format:@"Failed to open file named %@.%@", _property.biasFileName, _property.fileExtension];
+        }
+
+        const char *path_weights = [[NSBundle mainBundle] pathForResource:_property.weightsFileName ofType:_property.fileExtension].UTF8String;
+        int32_t fd_w = open(path_weights, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+        if (fd_w == -1) {
+            [NSException raise:@"FailedToOpenWeightParameterFile" format:@"Failed to open file named %@.%@", _property.weightsFileName, _property.fileExtension];
+        }
+
+        float *biasPointer = (float *)mmap(NULL, [self biasDataLength], PROT_READ, MAP_FILE | MAP_SHARED, fd_b, 0);
+        float *weightsPointer = (float *)mmap(NULL, [self weightsDataLength], PROT_READ, MAP_FILE | MAP_SHARED, fd_w, 0);
+
+        _biasDescriptor = [MPSVectorDescriptor vectorDescriptorWithLength:[self biasLength] dataType:MPSDataTypeFloat32];
+        _biasVector = [[MPSVector alloc] initWithDevice:device descriptor:_biasDescriptor];
+        _biasPointer = (float *)_biasVector.data.contents;
+        memcpy(_biasPointer, biasPointer, [self biasDataLength]);
+
+        _weightsDescriptor = [MPSVectorDescriptor vectorDescriptorWithLength:[self weightsLength] dataType:MPSDataTypeFloat32];
+        _weightsVector = [[MPSVector alloc] initWithDevice:device descriptor:_weightsDescriptor];
+        _weightsPointer = (float *)_weightsVector.data.contents;
+        memcpy(_weightsPointer, weightsPointer, [self weightsDataLength]);
+
+        munmap(biasPointer, [self biasDataLength]);
+        munmap(weightsPointer, [self weightsDataLength]);
+
+        _weightsAndBiasState = [[MPSCNNConvolutionWeightsAndBiasesState alloc] initWithWeights:_weightsVector.data biases:_biasVector.data];
     }
     return self;
 }
 
-+ (instancetype)dataSourceWithProperty:(CNNConvolutionDataSourceProperty *)property device:(id<MTLDevice>)device {
-    return [[CNNConvolutionDataSource alloc] initWithProperty:property device:device];
++ (instancetype)dataSourceWithProperty:(CNNConvolutionDataSourceProperty *)property device:(id<MTLDevice>)device commandQueue:(id<MTLCommandQueue>)commandQueue {
+    return [[CNNConvolutionDataSource alloc] initWithProperty:property device:device commandQueue:commandQueue];
+}
+
+- (size_t)biasLength {
+    return _property.shape.outputFeatureChannels;
 }
 
 - (size_t)biasDataLength {
-    return _property.shape.outputFeatureChannels*sizeof(float32_t);
+    return self.biasLength*sizeof(Float32);
 }
 
-- (size_t)weightsDataLength {
+- (size_t)weightsLength {
     size_t kernelWidth = _property.shape.kernelWidth;
     size_t kernelHeight = _property.shape.kernelHeight;
     size_t inputFeatureChannels = _property.shape.inputFeatureChannels;
     size_t outputFeatureChannels = _property.shape.outputFeatureChannels;
-    return inputFeatureChannels*kernelWidth*kernelHeight*outputFeatureChannels*sizeof(float32_t);
+    return inputFeatureChannels*kernelWidth*kernelHeight*outputFeatureChannels;
+}
+
+- (size_t)weightsDataLength {
+    return self.weightsLength*sizeof(Float32);
 }
 
 - (NSString * _Nullable)label {
@@ -169,35 +212,21 @@
 }
 
 - (BOOL)load {
-    const char *path_bias = [[NSBundle mainBundle] pathForResource:_property.biasFileName ofType:_property.fileExtension].UTF8String;
-    int32_t fd_b = open(path_bias, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    if (fd_b == -1) {
-        [NSException raise:@"FailedToOpenBiasParameterFile" format:@"Failed to open file named %@.%@", _property.biasFileName, _property.fileExtension];
-    }
-
-    const char *path_weights = [[NSBundle mainBundle] pathForResource:_property.weightsFileName ofType:_property.fileExtension].UTF8String;
-    int32_t fd_w = open(path_weights, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    if (fd_w == -1) {
-        [NSException raise:@"FailedToOpenWeightParameterFile" format:@"Failed to open file named %@.%@", _property.weightsFileName, _property.fileExtension];
-    }
-
-    _bias = (float *)mmap(NULL, [self biasDataLength], PROT_READ, MAP_FILE | MAP_SHARED, fd_b, 0);
-    _weights = (float *)mmap(NULL, [self weightsDataLength], PROT_READ, MAP_FILE | MAP_SHARED, fd_w, 0);
-    
+    [self checkpoint];
     return TRUE;
 }
 
 - (void)purge {
-    munmap(_bias, [self biasDataLength]);
-    munmap(_weights, [self weightsDataLength]);
+//    munmap(_biasPointer, [self biasDataLength]);
+//    munmap(_weightsPointer, [self weightsDataLength]);
 }
 
 - (float *)biasTerms {
-    return _bias;
+    return _biasPointer;
 }
 
 - (void * _Nonnull)weights {
-    return _weights;
+    return _weightsPointer;
 }
 
 - (MPSDataType)dataType {
@@ -219,12 +248,21 @@
 
 - (MPSCNNConvolutionWeightsAndBiasesState *)updateWithCommandBuffer:(id<MTLCommandBuffer>)commandBuffer gradientState:(MPSCNNConvolutionGradientState *)gradientState sourceState:(MPSCNNConvolutionWeightsAndBiasesState *)sourceState {
     MPSStateBatchIncrementReadCount(@[sourceState], 1);
-    [_optimizer encodeToCommandBuffer:commandBuffer convolutionGradientState:gradientState convolutionSourceState:sourceState inputMomentumVectors:nil resultState:sourceState];
-    return sourceState;
+    [_optimizer encodeToCommandBuffer:commandBuffer convolutionGradientState:gradientState convolutionSourceState:sourceState inputMomentumVectors:nil resultState:_weightsAndBiasState];
+    return _weightsAndBiasState;
 }
 
 - (nonnull id)copyWithZone:(nullable NSZone *)zone {
-    return [CNNConvolutionDataSource dataSourceWithProperty:_property.copy device:_device];
+    return [CNNConvolutionDataSource dataSourceWithProperty:_property.copy device:_device commandQueue:_commandQueue];
+}
+
+- (void)checkpoint {
+    @autoreleasepool{
+        id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer]; //[MPSCommandBuffer commandBufferFromCommandQueue:_commandQueue];
+        [_weightsAndBiasState synchronizeOnCommandBuffer:commandBuffer];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+    }
 }
 
 @end

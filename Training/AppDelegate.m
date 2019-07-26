@@ -10,12 +10,14 @@
 
 @interface AppDelegate ()
 @property (strong, nonatomic, nonnull) id<MTLDevice> GPUDevice;
+@property (strong, nonatomic, nonnull) id<MTLCommandQueue> CommandQueue;
 @end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.GPUDevice = MTLCreateSystemDefaultDevice();
+    self.CommandQueue = _GPUDevice.newCommandQueue;
     return YES;
 }
 

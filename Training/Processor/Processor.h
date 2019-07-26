@@ -14,6 +14,6 @@
 
 - (void)trainGraph:(Graph *)graph training:(MNIST *)training test:(MNIST *)test epocs:(NSUInteger)epocs iterationsPerEpoc:(NSUInteger)iterationsPerEpoc batchSize:(NSUInteger)batchSize;
 
-- (void)inferenceMNIST:(MNIST *)mnist range:(NSRange)range graph:(MPSNNGraph *)graph;
+- (void)inferenceMNIST:(MNIST *)mnist size:(UInt32)size graph:(MPSNNGraph *)graph;
 
 @end

@@ -114,18 +114,24 @@
 /// Data source class for MPSCNNConvolutionDataSource.
 @interface CNNConvolutionDataSource : NSObject<MPSCNNConvolutionDataSource>
 
+@property (nonatomic, assign, nonnull, readonly) id <MTLCommandQueue> commandQueue;
+
 /// Property to provide data for layer.
 @property (nonatomic, retain, nonnull, readonly) CNNConvolutionDataSourceProperty *property;
 
 /// Initializes data source.
 ///
 /// @param property Property to provide data for layer.
-- (instancetype)initWithProperty:(nonnull CNNConvolutionDataSourceProperty *)property device:(id<MTLDevice>)device;
+- (instancetype _Nonnull)initWithProperty:(nonnull CNNConvolutionDataSourceProperty *)property
+                                   device:(nonnull id<MTLDevice>)device
+                             commandQueue:(nonnull id <MTLCommandQueue>)commandQueue;
 
 /// Creates data source.
 ///
 /// @param property Property to provide data for layer.
-+ (instancetype)dataSourceWithProperty:(nonnull CNNConvolutionDataSourceProperty *)property device:(id<MTLDevice>)device;
++ (instancetype _Nonnull)dataSourceWithProperty:(nonnull CNNConvolutionDataSourceProperty *)property
+                                         device:(nonnull id<MTLDevice>)device
+                                   commandQueue:(nonnull id <MTLCommandQueue>)commandQueue;
 
 
 @end

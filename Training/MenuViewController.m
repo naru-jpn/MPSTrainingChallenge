@@ -86,8 +86,8 @@
 }
 
 - (void)startTraining {
-    [_processor trainGraph:_graph training:_mnistTraning test:_mnistTest epocs:10 iterationsPerEpoc:60 batchSize:10];
-    [_processor inferenceMNIST:_mnistTest range:NSMakeRange(0, 1) graph:_graph.inference];
+    [_processor trainGraph:_graph training:_mnistTraning test:_mnistTest epocs:10 iterationsPerEpoc:15 batchSize:40];
+//    [_processor inferenceMNIST:_mnistTest size:1000 graph:_graph.inference];
 }
 
 @end

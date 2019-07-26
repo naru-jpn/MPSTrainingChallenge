@@ -11,11 +11,13 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
+@property (strong, nonatomic, nullable) UIWindow *window;
 
 @property (strong, nonatomic, nonnull, readonly) id<MTLDevice> GPUDevice;
 
-+ (instancetype)instance;
+@property (strong, nonatomic, nonnull, readonly) id<MTLCommandQueue> CommandQueue;
+
++ (nonnull instancetype)instance;
 
 @end
 

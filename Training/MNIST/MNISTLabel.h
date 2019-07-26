@@ -12,18 +12,18 @@
 
 @property (nonatomic, retain, readonly, nonnull) NSData *data;
 
-- (instancetype)initWithData:(NSData *)data;
+- (nonnull instancetype)initWithData:(nonnull NSData *)data;
 
-+ (instancetype)labelWithData:(NSData *)data;
++ (nonnull instancetype)labelWithData:(nonnull NSData *)data;
 
-- (instancetype)initWithValue:(UInt8 *)value;
+- (nonnull instancetype)initWithValue:(nonnull UInt8 *)value;
 
-+ (instancetype)labelWithValue:(UInt8 *)value;
++ (nonnull instancetype)labelWithValue:(nonnull UInt8 *)value;
 
 - (UInt8)value;
 
 /// Return data formated floating point for label value.
 /// (ex. 3 -> [0,0,0,1,0,0,0,0,0,0])
-- (NSData *)alignedData;
+- (nonnull NSData *)alignedData;
 
 @end

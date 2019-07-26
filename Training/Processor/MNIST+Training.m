@@ -15,9 +15,9 @@
 - (MPSImageBatch *)imageBatchWithRange:(NSRange)range {
     NSArray<MNISTSample *> *samples = [self.samples subarrayWithRange:range];
     NSMutableArray<MPSImage *> *results = [NSMutableArray new];
-    for (NSInteger i=0; i<samples.count; i++) {
-        MPSImage *image = [self imageWithSample:samples[i]];
-        image.label = @(i).description;
+    for (MNISTSample *sample in samples) {
+        MPSImage *image = [self imageWithSample:sample];
+        image.label = @(sample.label.value).description;
         [results addObject:image];
     }
     return results;
@@ -42,6 +42,19 @@
 - (MPSStateBatch *)stateBatchWithIteration:(NSUInteger)iteration batchSize:(NSUInteger)batchSize {
     NSRange range = NSMakeRange(iteration*batchSize, batchSize);
     return [self stateBatchWithRange:range];
+}
+
+- (MPSImageBatch *)testImageBatchWithLength:(NSInteger)length {
+    UInt32 count = (UInt32)self.samples.count;
+    NSMutableArray<MPSImage *> *results = [NSMutableArray new];
+    for (NSInteger i=0; i<length; i++) {
+        NSInteger index = arc4random_uniform(count);
+        MNISTSample *sample = self.samples[index];
+        MPSImage *image = [self imageWithSample:sample];
+        image.label = @(sample.label.value).description;
+        [results addObject:image];
+    }
+    return results;
 }
 
 - (nonnull MPSImage *)imageWithSample:(MNISTSample *)sample {

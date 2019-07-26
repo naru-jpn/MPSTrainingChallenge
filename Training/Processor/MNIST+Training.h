@@ -20,4 +20,6 @@
 
 - (nonnull MPSStateBatch *)stateBatchWithIteration:(NSUInteger)iteration batchSize:(NSUInteger)batchSize;
 
+- (nonnull MPSImageBatch *)testImageBatchWithLength:(NSInteger)length;
+
 @end
