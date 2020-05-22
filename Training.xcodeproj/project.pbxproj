@@ -31,6 +31,8 @@
 		28D20BA421BA6643001617E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 28D20BA321BA6643001617E7 /* Assets.xcassets */; };
 		28D20BA721BA6643001617E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 28D20BA521BA6643001617E7 /* LaunchScreen.storyboard */; };
 		28D20BAA21BA6643001617E7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D20BA921BA6643001617E7 /* main.m */; };
+		434BAF4A22EBCD9600186E3E /* Parameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 434BAF4922EBCD9600186E3E /* Parameter.m */; };
+		43C2BC1B22EDBBCF00F273F2 /* InferenceResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 43C2BC1A22EDBBCF00F273F2 /* InferenceResult.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,7 +41,7 @@
 		280FD06121BFB2DE00B075A9 /* Graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Graph.h; sourceTree = "<group>"; };
 		280FD06221BFB2DE00B075A9 /* Graph.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Graph.m; sourceTree = "<group>"; };
 		280FD06621BFB2F600B075A9 /* fully_connected_weights.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = fully_connected_weights.dat; sourceTree = "<group>"; };
-		280FD06721BFB2F600B075A9 /* fully_connected_bias.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = fully_connected_bias.dat; sourceTree = "<group>"; };
+		280FD06721BFB2F600B075A9 /* fully_connected_bias.dat */ = {isa = PBXFileReference; lastKnownFileType = text; path = fully_connected_bias.dat; sourceTree = "<group>"; };
 		280FD06B21BFB3F100B075A9 /* MNISTPreviewViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MNISTPreviewViewController.h; sourceTree = "<group>"; };
 		280FD06C21BFB3F100B075A9 /* MNISTPreviewViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MNISTPreviewViewController.m; sourceTree = "<group>"; };
 		280FD06E21BFB48000B075A9 /* MNISTPreviewViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MNISTPreviewViewController.storyboard; sourceTree = "<group>"; };
@@ -73,6 +75,10 @@
 		28D20BA621BA6643001617E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		28D20BA821BA6643001617E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		28D20BA921BA6643001617E7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		434BAF4822EBCD9600186E3E /* Parameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Parameter.h; path = "../../../../../../../System/Volumes/Data/Users/naru/repo/naru-jpn/MPSTrainingChallenge/Training/Parameters/Parameter.h"; sourceTree = "<group>"; };
+		434BAF4922EBCD9600186E3E /* Parameter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Parameter.m; path = "../../../../../../../System/Volumes/Data/Users/naru/repo/naru-jpn/MPSTrainingChallenge/Training/Parameters/Parameter.m"; sourceTree = "<group>"; };
+		43C2BC1922EDBBCF00F273F2 /* InferenceResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = InferenceResult.h; path = "../../../../../../../System/Volumes/Data/Users/naru/repo/naru-jpn/MPSTrainingChallenge/Training/Processor/InferenceResult.h"; sourceTree = "<group>"; };
+		43C2BC1A22EDBBCF00F273F2 /* InferenceResult.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = InferenceResult.m; path = "../../../../../../../System/Volumes/Data/Users/naru/repo/naru-jpn/MPSTrainingChallenge/Training/Processor/InferenceResult.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +138,8 @@
 			children = (
 				2844BA8C21C0A94700A1697C /* Processor.h */,
 				2844BA8D21C0A94700A1697C /* Processor.m */,
+				43C2BC1922EDBBCF00F273F2 /* InferenceResult.h */,
+				43C2BC1A22EDBBCF00F273F2 /* InferenceResult.m */,
 				2844BA8F21C0B16C00A1697C /* MNIST+Training.h */,
 				2844BA9021C0B16C00A1697C /* MNIST+Training.m */,
 			);
@@ -183,6 +191,7 @@
 				28D20B9B21BA6642001617E7 /* AppDelegate.m */,
 				28D20B9D21BA6642001617E7 /* MenuViewController.h */,
 				28D20B9E21BA6642001617E7 /* MenuViewController.m */,
+				434BAF4222EBB95D00186E3E /* Parameters */,
 				280FD05D21BFB2DE00B075A9 /* Graph */,
 				28C84C7621BE1524003646DD /* MNIST */,
 				2844BA8B21C0A93400A1697C /* Processor */,
@@ -193,6 +202,15 @@
 				28D20BA921BA6643001617E7 /* main.m */,
 			);
 			path = Training;
+			sourceTree = "<group>";
+		};
+		434BAF4222EBB95D00186E3E /* Parameters */ = {
+			isa = PBXGroup;
+			children = (
+				434BAF4822EBCD9600186E3E /* Parameter.h */,
+				434BAF4922EBCD9600186E3E /* Parameter.m */,
+			);
+			path = Parameters;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -278,9 +296,11 @@
 				28D20BAA21BA6643001617E7 /* main.m in Sources */,
 				280FD06321BFB2DE00B075A9 /* CNNConvolutionDataSource.m in Sources */,
 				280FD06421BFB2DE00B075A9 /* Graph.m in Sources */,
+				434BAF4A22EBCD9600186E3E /* Parameter.m in Sources */,
 				28C84C7D21BE1524003646DD /* MNIST.m in Sources */,
 				280FD06D21BFB3F100B075A9 /* MNISTPreviewViewController.m in Sources */,
 				2844BA8E21C0A94700A1697C /* Processor.m in Sources */,
+				43C2BC1B22EDBBCF00F273F2 /* InferenceResult.m in Sources */,
 				28C84C8321BE302E003646DD /* MNISTImage.m in Sources */,
 				28C84C8921BE429B003646DD /* MNISTSample.m in Sources */,
 				2844BA9121C0B16C00A1697C /* MNIST+Training.m in Sources */,

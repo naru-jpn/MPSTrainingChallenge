@@ -87,7 +87,9 @@
 
 - (void)startTraining {
     [_processor trainGraph:_graph training:_mnistTraning test:_mnistTest epocs:10 iterationsPerEpoc:15 batchSize:40];
-//    [_processor inferenceMNIST:_mnistTest size:1000 graph:_graph.inference];
+    [_processor inferenceMNIST:_mnistTest size:1000 graph:_graph.inference completion:^(InferenceResult *result) {
+        NSLog(@"Accuracy: %f", result.accuracy);
+    }];
 }
 
 @end

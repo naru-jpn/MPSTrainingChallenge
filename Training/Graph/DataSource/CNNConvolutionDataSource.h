@@ -20,7 +20,7 @@
 /// @param outputFeatureChannels Number feature channels from output of this layer.
 /// @param strideX The output stride (downsampling factor) in the x dimension.
 /// @param strideY The output stride (downsampling factor) in the y dimension.
-- (instancetype)initWithKernelWidth:(size_t)kernelWidth
+- (nonnull instancetype)initWithKernelWidth:(size_t)kernelWidth
                        kernelHeight:(size_t)kernelHeight
                inputFeatureChannels:(size_t)inputFeatureChannels
               outputFeatureChannels:(size_t)outputFeatureChannels
@@ -35,7 +35,7 @@
 /// @param outputFeatureChannels Number feature channels from output of this layer.
 /// @param strideX The output stride (downsampling factor) in the x dimension.
 /// @param strideY The output stride (downsampling factor) in the y dimension.
-+ (instancetype)shapeWithKernelWidth:(size_t)kernelWidth
++ (nonnull instancetype)shapeWithKernelWidth:(size_t)kernelWidth
                         kernelHeight:(size_t)kernelHeight
                 inputFeatureChannels:(size_t)inputFeatureChannels
                outputFeatureChannels:(size_t)outputFeatureChannels
@@ -71,12 +71,10 @@
 /// @param shape Representing shape of convolutional network layer.
 /// @param biasFileName File name containing bias data.
 /// @param weightsFileName File name containing weights data. Sets "dat" if value is nil.
-/// @param fileExtension File extension of data file.
 /// @param label Label for layer.
-- (instancetype)initWithShape:(nonnull CNNConvolutionDataShape *)shape
+- (nonnull instancetype)initWithShape:(nonnull CNNConvolutionDataShape *)shape
                  biasFileName:(nonnull NSString *)biasFileName
               weightsFileName:(nonnull NSString *)weightsFileName
-                fileExtension:(nullable NSString *)fileExtension
                         label:(nullable NSString *)label;
 
 
@@ -85,12 +83,10 @@
 /// @param shape Representing shape of convolutional network layer.
 /// @param biasFileName File name containing bias data.
 /// @param weightsFileName File name containing weights data. Sets "dat" if value is nil.
-/// @param fileExtension File extension of data file.
 /// @param label Label for layer.
-+ (instancetype)propertyWithShape:(nonnull CNNConvolutionDataShape *)shape
++ (nonnull instancetype)propertyWithShape:(nonnull CNNConvolutionDataShape *)shape
                      biasFileName:(nonnull NSString *)biasFileName
                   weightsFileName:(nonnull NSString *)weightsFileName
-                    fileExtension:(nullable NSString *)fileExtension
                             label:(nullable NSString *)label;
 
 /// Representing shape of convolutional network layer.
@@ -101,9 +97,6 @@
 
 /// File name containing weights data.
 @property (nonatomic, copy, nonnull) NSString *weightsFileName;
-
-/// File extension of data file. Default value is "dat".
-@property (nonatomic, copy, nonnull) NSString *fileExtension;
 
 /// Label for layer.
 @property (nonatomic, copy, nullable) NSString *label;
@@ -133,5 +126,7 @@
                                          device:(nonnull id<MTLDevice>)device
                                    commandQueue:(nonnull id <MTLCommandQueue>)commandQueue;
 
+
+- (void)save;
 
 @end

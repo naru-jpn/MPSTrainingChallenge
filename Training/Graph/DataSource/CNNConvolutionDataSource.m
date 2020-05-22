@@ -9,6 +9,7 @@
 @import Darwin;
 #import "CNNConvolutionDataSource.h"
 #import "../../AppDelegate.h"
+#import "Parameter.h"
 
 @implementation CNNConvolutionDataShape {
     size_t _kernelWidth;
@@ -85,7 +86,6 @@
         self.shape = [[CNNConvolutionDataShape alloc] initWithKernelWidth:0 kernelHeight:0 inputFeatureChannels:0 outputFeatureChannels:0 strideX:0 strideY:0];
         self.biasFileName = @"";
         self.weightsFileName = @"";
-        self.fileExtension = @"dat";
         self.label = nil;
     }
     return self;
@@ -94,24 +94,21 @@
 - (instancetype)initWithShape:(nonnull CNNConvolutionDataShape *)shape
                 biasFileName:(nonnull NSString *)biasFileName
              weightsFileName:(nonnull NSString *)weightsFileName
-               fileExtension:(nullable NSString *)fileExtension
                        label:(nullable NSString *)label {
     self = [super init];
     if (self) {
         self.shape = shape;
         self.biasFileName = biasFileName;
         self.weightsFileName = weightsFileName;
-        self.fileExtension = fileExtension != nil ? fileExtension : @"dat";
         self.label = nil;
     }
     return self;
 }
 
-+ (instancetype)propertyWithShape:(CNNConvolutionDataShape *)shape biasFileName:(NSString *)biasFileName weightsFileName:(NSString *)weightsFileName fileExtension:(NSString *)fileExtension label:(NSString *)label {
++ (instancetype)propertyWithShape:(CNNConvolutionDataShape *)shape biasFileName:(NSString *)biasFileName weightsFileName:(NSString *)weightsFileName label:(NSString *)label {
     return [[CNNConvolutionDataSourceProperty alloc] initWithShape:shape
                                                       biasFileName:biasFileName
                                                    weightsFileName:weightsFileName
-                                                     fileExtension:fileExtension
                                                              label:label];
 }
 
@@ -119,7 +116,6 @@
     return [CNNConvolutionDataSourceProperty propertyWithShape:_shape.copy
                                                   biasFileName:self.biasFileName
                                                weightsFileName:self.weightsFileName
-                                                 fileExtension:self.fileExtension
                                                          label:self.label];
 }
 
@@ -150,33 +146,24 @@
         self.optimizer = [[MPSNNOptimizerStochasticGradientDescent alloc] initWithDevice:device learningRate:0.01f];
         self.commandQueue = commandQueue;
 
-        const char *path_bias = [[NSBundle mainBundle] pathForResource:_property.biasFileName ofType:_property.fileExtension].UTF8String;
-        int32_t fd_b = open(path_bias, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-        if (fd_b == -1) {
-            [NSException raise:@"FailedToOpenBiasParameterFile" format:@"Failed to open file named %@.%@", _property.biasFileName, _property.fileExtension];
+        Parameter *bias = [Parameter parameterFromFileURL:[self biasFileURL]];
+        if (bias == nil) {
+            bias = [Parameter randomParameterWithCount:[self biasLength]];
         }
-
-        const char *path_weights = [[NSBundle mainBundle] pathForResource:_property.weightsFileName ofType:_property.fileExtension].UTF8String;
-        int32_t fd_w = open(path_weights, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-        if (fd_w == -1) {
-            [NSException raise:@"FailedToOpenWeightParameterFile" format:@"Failed to open file named %@.%@", _property.weightsFileName, _property.fileExtension];
+        Parameter *weights = [Parameter parameterFromFileURL:[self weightsFileURL]];
+        if (weights == nil) {
+            weights = [Parameter randomParameterWithCount:[self weightsLength]];
         }
-
-        float *biasPointer = (float *)mmap(NULL, [self biasDataLength], PROT_READ, MAP_FILE | MAP_SHARED, fd_b, 0);
-        float *weightsPointer = (float *)mmap(NULL, [self weightsDataLength], PROT_READ, MAP_FILE | MAP_SHARED, fd_w, 0);
 
         _biasDescriptor = [MPSVectorDescriptor vectorDescriptorWithLength:[self biasLength] dataType:MPSDataTypeFloat32];
         _biasVector = [[MPSVector alloc] initWithDevice:device descriptor:_biasDescriptor];
         _biasPointer = (float *)_biasVector.data.contents;
-        memcpy(_biasPointer, biasPointer, [self biasDataLength]);
+        memcpy(_biasPointer, bias.values, [self biasDataLength]);
 
         _weightsDescriptor = [MPSVectorDescriptor vectorDescriptorWithLength:[self weightsLength] dataType:MPSDataTypeFloat32];
         _weightsVector = [[MPSVector alloc] initWithDevice:device descriptor:_weightsDescriptor];
         _weightsPointer = (float *)_weightsVector.data.contents;
-        memcpy(_weightsPointer, weightsPointer, [self weightsDataLength]);
-
-        munmap(biasPointer, [self biasDataLength]);
-        munmap(weightsPointer, [self weightsDataLength]);
+        memcpy(_weightsPointer, weights.values, [self weightsDataLength]);
 
         _weightsAndBiasState = [[MPSCNNConvolutionWeightsAndBiasesState alloc] initWithWeights:_weightsVector.data biases:_biasVector.data];
     }
@@ -213,12 +200,11 @@
 
 - (BOOL)load {
     [self checkpoint];
+    [self save];
     return TRUE;
 }
 
 - (void)purge {
-//    munmap(_biasPointer, [self biasDataLength]);
-//    munmap(_weightsPointer, [self weightsDataLength]);
 }
 
 - (float *)biasTerms {
@@ -263,6 +249,22 @@
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
     }
+}
+
+- (NSURL *)biasFileURL {
+    return [[[NSFileManager defaultManager] temporaryDirectory] URLByAppendingPathComponent:[self.property biasFileName]];
+}
+
+- (NSURL *)weightsFileURL {
+    return [[[NSFileManager defaultManager] temporaryDirectory] URLByAppendingPathComponent:[self.property weightsFileName]];
+}
+
+- (void)save {
+    Parameter *bias = [Parameter parameterWithValues:(Float32 *)[self biasTerms] count:[self biasLength]];
+    [bias writeToFileURL:[self biasFileURL]];
+
+    Parameter *weights = [Parameter parameterWithValues:(Float32 *)[self weights] count:[self weightsLength]];
+    [weights writeToFileURL:[self weightsFileURL]];
 }
 
 @end

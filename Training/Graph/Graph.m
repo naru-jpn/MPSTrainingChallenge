@@ -49,7 +49,7 @@
     NSString *biasFileName = @"fully_connected_bias";
     NSString *weightsFileName = @"fully_connected_weights";
     CNNConvolutionDataShape *shape = [CNNConvolutionDataShape shapeWithKernelWidth:28 kernelHeight:28 inputFeatureChannels:1 outputFeatureChannels:10 strideX:1 strideY:1];
-    CNNConvolutionDataSourceProperty *property = [CNNConvolutionDataSourceProperty propertyWithShape:shape biasFileName:biasFileName weightsFileName:weightsFileName fileExtension:@"dat" label:@"fullyConnectedNode"];
+    CNNConvolutionDataSourceProperty *property = [CNNConvolutionDataSourceProperty propertyWithShape:shape biasFileName:biasFileName weightsFileName:weightsFileName label:@"fullyConnectedNode"];
     id<MPSCNNConvolutionDataSource> dataSource = [CNNConvolutionDataSource dataSourceWithProperty:property device:device commandQueue:AppDelegate.instance.CommandQueue];
     return dataSource;
 }

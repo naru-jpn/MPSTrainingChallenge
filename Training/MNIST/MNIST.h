@@ -25,9 +25,9 @@ typedef NS_ENUM(NSInteger, MNISTDatasetType) {
 
 @property (nonatomic, retain, readonly, nonnull) NSArray<MNISTSample *> *samples;
 
-- (instancetype)initWithDatasetType:(MNISTDatasetType)datasetType;
+- (nonnull instancetype)initWithDatasetType:(MNISTDatasetType)datasetType;
 
-+ (instancetype)mnistWithDatasetType:(MNISTDatasetType)datasetType;
++ (nonnull instancetype)mnistWithDatasetType:(MNISTDatasetType)datasetType;
 
 + (NSRange)rangeWithMoved:(size_t)moved fromCorsor:(size_t *)corsor;
 

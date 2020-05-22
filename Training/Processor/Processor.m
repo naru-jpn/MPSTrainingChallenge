@@ -46,7 +46,9 @@
         
         NSLog(@"Complete epoc: %ld", j+1);
 
-        [self inferenceMNIST:test size:1000 graph:graph.inference];
+        [self inferenceMNIST:test size:1000 graph:graph.inference completion:^(InferenceResult *result) {
+            
+        }];
     }
 }
 
@@ -66,11 +68,11 @@
     MPSImageBatch *returnBatch = [graph encodeBatchToCommandBuffer:commandBuffer sourceImages:@[imageBatch] sourceStates:@[stateBatch] intermediateImages:intermediateImages destinationStates:intermediateStates];
     [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
         dispatch_semaphore_signal(self->_semaphore_train);
-//        float loss = [self getTotalLoss:outputBatch];
-//        NSLog(@"Total Loss(%ld): %f", iteration, loss);
+        float loss = [self getTotalLoss:outputBatch];
+        NSLog(@"Total Loss(%ld): %f", iteration, loss);
     }];
 
-    // MARK: これ必要？
+    // これ必要？
     MPSImageBatchSynchronize(returnBatch, commandBuffer);
     MPSImageBatchSynchronize(outputBatch, commandBuffer);
 
@@ -92,7 +94,7 @@
     return totalLoss;
 }
 
-- (void)inferenceMNIST:(MNIST *)mnist size:(UInt32)size graph:(MPSNNGraph *)graph {
+- (void)inferenceMNIST:(MNIST *)mnist size:(UInt32)size graph:(MPSNNGraph *)graph completion:(void (^)(InferenceResult *))completion {
     [graph reloadFromDataSources];
 
     dispatch_semaphore_wait(_semaphore_train, DISPATCH_TIME_FOREVER);
@@ -122,12 +124,12 @@
             }
             NSInteger answer = [imageBatch[idx].label intValue];
             NSInteger predicate = [[NSString stringWithFormat:@"%ld", maxIndex] intValue];
-//            NSLog(@"Predicate: %ld (Correct: %ld)", predicate, answer);
             if (predicate == answer) {
                 countCorrectInference++;
             }
         }];
-        NSLog(@"Accuracy: %6.2lf%%", (float)countCorrectInference/(float)size*100);
+        InferenceResult *result = [InferenceResult resultWithCountTrials:size countCorrect:countCorrectInference];
+        completion(result);
     }];
 
     [commandBuffer commit];
