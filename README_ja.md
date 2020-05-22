@@ -29,4 +29,8 @@ FullyConnectedConvolution Layer(1x1x10)  FullyConnectedConvolution Gradient Laye
 # 現状(2018.12.15)
 
 学習はできているらしい ( `MPSCNNConvolution.h` L.683 参照 ).
-学習した結果を推論するのどうしたらいいの？→できた(2019)
+学習した結果を推論するのどうしたらいいの？
+
+# 現状(2019)
+
+学習と推論できた.
